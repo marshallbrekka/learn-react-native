@@ -1,16 +1,19 @@
 import React from "react";
-import { Text, ScrollView, Image, StyleSheet, View, Animated, Dimensions, TouchableWithoutFeedback } from "react-native";
+import { ImageBackground, Platform, TouchableNativeFeedback, Text, ScrollView, Image, StyleSheet, View, Animated, Dimensions, TouchableWithoutFeedback } from "react-native";
 
 const screen = Dimensions.get('window');
 
 
 const styles = StyleSheet.create({
-  container: {
-    height: 200,
+  scrollView: {
+    height: 250,
     backgroundColor: "rgb(245, 245, 245)",
+    marginTop: 10
+  },
+  container: {
+    height: 250,
     padding: 20,
-    flexDirection: "row",
-    marginTop: 20,
+    flexDirection: "row"
   },
   blue: {
     backgroundColor: 'blue'
@@ -34,6 +37,11 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     resizeMode: "contain"
+  },
+  imageFullscreen: {
+    position: "absolute",
+    height: 250,
+    resizeMode: "cover"
   },
   yearMake: {
     fontFamily: "HelveticaNeue-Light",
@@ -59,7 +67,7 @@ const styles = StyleSheet.create({
   },
   price: {
     color: "rgb(255, 90, 0)",
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: "300"
   },
   mileageView:{
@@ -75,35 +83,74 @@ const styles = StyleSheet.create({
 });
 
 class VehicleTile extends React.Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Image style={styles.image}
-               source={{uri: this.props.vehicle.chrome_image_url}}/>
-        <View style={styles.leftContent}>
-          <Text style={styles.yearMake}>
-            {this.props.vehicle.model_year} {this.props.vehicle.make}
-          </Text>
-          <Text style={styles.model}>{this.props.vehicle.model}</Text>
-          { this.props.vehicle.delivery_option == "delivery"
-            ? <View style={styles.freeDeliveryContainer}>
-                <Text style={styles.freeDelivery}>Free Delivery</Text>
-              </View>
-            : null}
-        </View>
+  constructor(props) {
+    super(props);
+    this.state = { width: 0 };
+  }
 
-        <View style={styles.rightContent}>
-          <Text style={styles.price}>
-            ${this.props.vehicle.product_financials[0].monthly_payment_cents}
-          </Text>
-          <Text style={styles.yearMake}>Per Mo.</Text>
-          <View style={styles.mileageView}>
-            <Text style={styles.mileage}>
-              Mileage {this.props.vehicle.mileage}
+  onLayout = (event) => {
+    this.setState({width: event.nativeEvent.layout.width});
+  }
+
+  viewVehicle = (vehicle) => {
+    this.props.navigation.push("Details");
+  }
+
+  render() {
+    var Touchable = Platform.OS == "android" ? TouchableWithoutFeedback : TouchableWithoutFeedback;
+    var images = [];
+
+    this.props.vehicle.image_location_list.slice(0, 3).map((src) => {
+      images.push(
+        <Touchable onPress={this.viewVehicle}>
+          <View style={[styles.container, {width: this.state.width}]}>
+            <Image style={[styles.imageFullscreen, {width: this.state.width}]}
+                   source={{uri: src}}
+          />
+          </View>
+        </Touchable>
+      );
+    });
+    
+    return (
+      <ScrollView horizontal={true}
+                  pagingEnabled={true}
+                  onLayout={this.onLayout}
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.scrollView}
+      >
+        <Touchable onPress={this.viewVehicle}>
+        <View style={[styles.container, {width: this.state.width}]}>
+          <Image style={styles.image}
+                 source={{uri: this.props.vehicle.chrome_image_url}}/>
+          <View style={styles.leftContent}>
+            <Text style={styles.yearMake}>
+              {this.props.vehicle.model_year} {this.props.vehicle.make}
             </Text>
+            <Text style={styles.model}>{this.props.vehicle.model}</Text>
+            { this.props.vehicle.delivery_option == "delivery"
+              ? <View style={styles.freeDeliveryContainer}>
+                                                             <Text style={styles.freeDelivery}>Free Delivery</Text>
+                                                           </View>
+              : null}
+          </View>
+        
+
+          <View style={styles.rightContent}>
+            <Text style={styles.price}>
+              ${this.props.vehicle.product_financials[0].monthly_payment_cents}
+            </Text>
+            <Text style={styles.yearMake}>Per Mo.</Text>
+            <View style={styles.mileageView}>
+              <Text style={styles.mileage}>
+                Mileage {this.props.vehicle.mileage}
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
+        </Touchable>
+        {images}
+      </ScrollView>
     );
   }
 }

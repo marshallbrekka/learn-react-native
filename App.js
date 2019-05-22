@@ -9,12 +9,14 @@
 // In App.js in a new project
 
 import React from "react";
-import { FlatList, ScrollView, Image, TouchableWithoutFeedback, View, Text, Button, KeyboardAvoidingView, TextInput, Alert, Keyboard, Animated, Dimensions, Easing } from "react-native";
+import { Platform, FlatList, ScrollView, Image, TouchableWithoutFeedback, View, Text, Button, KeyboardAvoidingView, TextInput, Alert, Keyboard, Animated, Dimensions, Easing } from "react-native";
 import { createStackNavigator, createAppContainer, StackActions, NavigationActions } from "react-navigation";
 
 import {Cars, Thing} from "./src/cars.js";
 import {VehicleTile, sampleVehicle} from "./src/vehicle_tile.js";
 import {searchResult} from "./src/search_result.js";
+
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 class HomeScreen extends React.Component {
   constructor(props) {
@@ -37,13 +39,18 @@ class HomeScreen extends React.Component {
   }
     
   componentDidMount() {
+    var showEvent = "keyboardWillShow", hideEvent = "keyboardWillHide";
+    if (Platform.OS === 'android') {
+      showEvent = "keyboardDidShow", hideEvent = "keyboardDidHide";
+    }
+    
     this.keyboardWillShowListener = Keyboard.addListener(
-      'keyboardWillShow',
+      showEvent,
       (event) => (
         this._keyboardWillShow(event)
       ));
     this.keyboardWillHideListener = Keyboard.addListener(
-      'keyboardWillHide',
+      hideEvent,
       (event) => (
       this._keyboardWillHide(event)
       ));
@@ -114,28 +121,20 @@ class HomeScreen extends React.Component {
   }
 
   navigateToDetails() {
-    const resetAction = StackActions.reset({
-      index: 0,
-      actions: [NavigationActions.navigate({ routeName: 'Details' })]
-    });
-    this.props.navigation.dispatch(resetAction);
+    this.props.navigation.navigate("Details");
   }
 
   render() {
-    const SCREEN_HEIGHT = Dimensions.get('window').height;
     let {phoneNumber} = this.state;
 
-    return (
-      <ScrollView style={{width: "100%", height: "100%"}}
-                  keyboardShouldPersistTaps="never"
-                  bounces={false}
-      >
-        <View style={{flex: 1, height: SCREEN_HEIGHT}}>
-          <Animated.View style={{
-            flex: 1,
-            opacity: this.opacity,
-            backgroundColor: "rgb(245, 245, 245)"
-          }}
+    var views = (
+      <View style={{height: SCREEN_HEIGHT}}>
+          <Animated.View
+            style={{
+              flex: 1,
+              opacity: this.opacity,
+              backgroundColor: "rgb(245, 245, 245)"
+            }}
           >
             <Cars/>
           </Animated.View>
@@ -191,7 +190,8 @@ class HomeScreen extends React.Component {
                   borderRadius: 7,
                   shadowRadius: 20,
                   shadowOffset: {height: 15},
-                  shadowOpacity: 0.15
+                  shadowOpacity: 0.15,
+                  elevation: 20
                 }}
                 keyboardType="phone-pad"
                 placeholder="(000) 000-0000"
@@ -202,8 +202,21 @@ class HomeScreen extends React.Component {
               />
             </Animated.View>
           </Animated.View>
-        </View>
-          </ScrollView>
+      </View>
+    );
+
+    if (Platform.OS == "android") {
+      return views;
+    }
+
+    return (
+      <ScrollView ref='myScrollView' style={{width: "100%", height: SCREEN_HEIGHT}}
+                  keyboardShouldPersistTaps="never"
+                  bounces={false}
+                  scrollEnabled={false}
+      >
+        {views}
+      </ScrollView>
     );
   }
 }
@@ -214,7 +227,7 @@ class DetailsScreen extends React.Component {
       <FlatList
         data={searchResult.data.vehicles}
         keyExtractor={(item, index) => item.id}
-        renderItem={({item}) => <VehicleTile vehicle={item} />}
+        renderItem={({item}) => <VehicleTile vehicle={item} navigation={this.props.navigation}/>}
       />
     );
   }
