@@ -10,243 +10,29 @@
 
 import React from "react";
 import { Platform, FlatList, ScrollView, Image, TouchableWithoutFeedback, View, Text, Button, KeyboardAvoidingView, TextInput, Alert, Keyboard, Animated, Dimensions, Easing } from "react-native";
-import { createStackNavigator, createAppContainer, StackActions, NavigationActions } from "react-navigation";
+// import { createStackNavigator, createAppContainer, StackActions, NavigationActions } from "react-navigation";
 
-import {Cars, Thing} from "./src/cars.js";
-import {VehicleTile, sampleVehicle} from "./src/vehicle_tile.js";
-import {searchResult} from "./src/search_result.js";
+import {
+  createSwitchNavigator,
+  createStackNavigator,
+  createAppContainer
+} from 'react-navigation';
 
-const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-class HomeScreen extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { phoneNumber: ""};
-  }
+import {AuthStack} from "./src/views/authentication.js";
+import {OnboardingStack} from "./src/views/onboarding.js";
+import {AppDrawer} from "./src/views/explore.js";
 
-  inputToValue(inputText){
-    if (inputText.length == 9) {
-      this.navigateToDetails();
-    }
-  }
-
-  componentWillMount() {
-    this.keyboardHeight = new Animated.Value(0);
-    this.height = new Animated.Value(0);
-    this.getHeight = new Animated.Value(0);
-    this.mobileHeight = new Animated.Value(0);
-    this.opacity = new Animated.Value(1);
-  }
-    
-  componentDidMount() {
-    var showEvent = "keyboardWillShow", hideEvent = "keyboardWillHide";
-    if (Platform.OS === 'android') {
-      showEvent = "keyboardDidShow", hideEvent = "keyboardDidHide";
-    }
-    
-    this.keyboardWillShowListener = Keyboard.addListener(
-      showEvent,
-      (event) => (
-        this._keyboardWillShow(event)
-      ));
-    this.keyboardWillHideListener = Keyboard.addListener(
-      hideEvent,
-      (event) => (
-      this._keyboardWillHide(event)
-      ));
-  }
-
-  componentWillUnmount() {
-    this.keyboardWillShowListener.remove();
-    this.keyboardWillHideListener.remove();
-  }
-
-  _keyboardWillShow(event) {
-    Animated.parallel([
-      Animated.timing(this.opacity, {
-        duration: 250,
-        useNativeDriver: true,
-        toValue: 0,
-      }),
-      Animated.timing(this.height, {
-        useNativeDriver: true,
-        duration: 840,
-        easing: Easing.bezier(0.58, 0.0, 0.31, 1.0),
-        toValue: -1 * (event.endCoordinates.height - 70)
-      }),
-      Animated.timing(this.getHeight, {
-        useNativeDriver: true,
-        duration: 840,
-        easing: Easing.bezier(0.58, 0.0, 0.31, 1.0),
-        toValue: -1 * (event.endCoordinates.height)
-      }),
-      Animated.timing(this.mobileHeight, {
-        useNativeDriver: true,
-        duration: 840,
-        easing: Easing.bezier(0.58, 0.0, 0.31, 1.0),
-        toValue: -1 * (event.endCoordinates.height - 35)
-      }),
-    ]).start();
-  }
-
-  _keyboardWillHide(event) {
-    var {height, width} = Dimensions.get('window');
-
-    Animated.parallel([
-      Animated.timing(this.opacity, {
-        duration: 250,
-        useNativeDriver: true,
-        toValue: 1,
-        delay: 500
-      }),
-      Animated.timing(this.height, {
-        useNativeDriver: true,
-        duration: 840,
-        easing: Easing.bezier(0.58, 0.0, 0.31, 1.0),
-        toValue: 0
-      }),
-      Animated.timing(this.getHeight, {
-        useNativeDriver: true,
-        duration: 840,
-        easing: Easing.bezier(0.58, 0.0, 0.31, 1.0),
-        toValue: 0
-      }),
-      Animated.timing(this.mobileHeight, {
-        useNativeDriver: true,
-        duration: 840,
-        easing: Easing.bezier(0.58, 0.0, 0.31, 1.0),
-        toValue: 0
-      }),
-    ]).start();
-  }
-
-  navigateToDetails() {
-    this.props.navigation.navigate("Details");
-  }
-
-  render() {
-    let {phoneNumber} = this.state;
-
-    var views = (
-      <View style={{height: SCREEN_HEIGHT}}>
-          <Animated.View
-            style={{
-              flex: 1,
-              opacity: this.opacity,
-              backgroundColor: "rgb(245, 245, 245)"
-            }}
-          >
-            <Cars/>
-          </Animated.View>
-
-          <Animated.View style={{
-            flex: 1,
-            width: "100%",
-            justifyContent: "center",
-            alignContent: "center",
-          }}>
-            <View style={{flex: 1}}>
-              <Animated.Text style={{
-                transform: [{
-                  translateY: this.getHeight
-                }],
-                textAlign: "center",
-                paddingTop: 10,
-                fontSize: 34
-              }}>
-                Get Started
-              </Animated.Text>
-              <Animated.Text style={{
-                transform: [{
-                  translateY: this.mobileHeight
-                }],
-                paddingTop: 20,
-                textAlign: "center",
-                fontSize: 20,
-                color: "grey"
-              }}>
-                Enter Your Mobile Number
-              </Animated.Text>
-            </View>
-            <Animated.View style={{
-              transform: [{
-                translateY: this.height
-              }],
-              flex: 2,
-              flexDirection: "row",
-              justifyContent: "center"
-            }}>
-              <TextInput
-                style={{
-                  textAlign: "center",
-                  fontSize: 34,
-                  height: 64,
-                  width: 264,
-                  borderColor: 'gray',
-                  fontFamily: "Helvetica Neue",
-                  fontWeight: "500",
-                  color: 'rgb(255, 90, 0)',
-                  backgroundColor: "white",
-                  borderRadius: 7,
-                  shadowRadius: 20,
-                  shadowOffset: {height: 15},
-                  shadowOpacity: 0.15,
-                  elevation: 20
-                }}
-                keyboardType="phone-pad"
-                placeholder="(000) 000-0000"
-                placeholderTextColor="rgb(200, 200, 200)"
-                textContentType="telephoneNumber"
-                selectionColor="rgb(255, 90, 0)"
-                onChangeText={this.inputToValue.bind(this)}
-              />
-            </Animated.View>
-          </Animated.View>
-      </View>
-    );
-
-    if (Platform.OS == "android") {
-      return views;
-    }
-
-    return (
-      <ScrollView ref='myScrollView' style={{width: "100%", height: SCREEN_HEIGHT}}
-                  keyboardShouldPersistTaps="never"
-                  bounces={false}
-                  scrollEnabled={false}
-      >
-        {views}
-      </ScrollView>
-    );
-  }
-}
-
-class DetailsScreen extends React.Component {
-  render() {
-    return (
-      <FlatList
-        data={searchResult.data.vehicles}
-        keyExtractor={(item, index) => item.id}
-        renderItem={({item}) => <VehicleTile vehicle={item} navigation={this.props.navigation}/>}
-      />
-    );
-  }
-}
-
-const AppNavigator = createStackNavigator(
+const switchNavigator = createSwitchNavigator(
   {
-    Home: {
-      screen: HomeScreen,
-      navigationOptions: {
-        header: null
-      }
-    },
-    Details: DetailsScreen
+    Auth: AuthStack,
+    Onboarding: OnboardingStack,
+    App: AppDrawer,
   },
   {
-    initialRouteName: "Home"
+    initialRouteName: 'Auth',
   }
 );
 
-export default createAppContainer(AppNavigator);
+export default createAppContainer(switchNavigator);
 // export default HomeScreen;
