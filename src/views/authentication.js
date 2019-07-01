@@ -16,10 +16,14 @@ import {
   createAppContainer
 } from 'react-navigation';
 
+import { FLButton } from "../components/button.js"
+
+import {
+  FLColors,
+  FLStyles
+} from "../components/styles.js"
 
 const styles = StyleSheet.create({
-  scroll: {
-  },
   container: {
     resizeMode: "contain",
     flex: 1,
@@ -32,38 +36,13 @@ const styles = StyleSheet.create({
     maxWidth: 289,
     width: "80%",
   },
-  continueButton: {
-    justifyContent: 'center',
-    marginTop: 24,
-    backgroundColor: "#5BC7AE",
-    height: 46,
-    borderRadius: 23,
-  },
-  continueButtonText: {
-    textAlign: "center",
-    // alignSelf: "center",
-    textAlignVertical: "center",
-    fontSize: 20,
-    color: 'white',
-    fontFamily: "Helvetica Neue",
-    fontWeight: "500",
-  },
   email: {
-    fontSize: 20,
     height: 46,
     width: '100%',
     borderColor: 'gray',
-    fontFamily: "Helvetica Neue",
-    fontWeight: "400",
     borderRadius: 7,
     paddingLeft: 20,
     backgroundColor: "white",
-  },
-  blue: {
-    backgroundColor: 'blue'
-  },
-  red: {
-    backgroundColor: 'red'
   },
   loadingContainer: {
     justifyContent: 'center',
@@ -112,17 +91,15 @@ class EmailCapture extends React.Component {
                    blurOnSubmit={true}
                    returnKeyType="done"
                    textContentType="username"
-                   style={styles.email}
+                   style={styles.email, FLStyles.fontWeightLite, FLStyles.fontSizeMedium}
                    onChangeText={(text) => this.setState({email: text})}
                    onSubmitEditing={() => this.onPressAuthenticate()}
       />
 
-      <TouchableHighlight
-        style={styles.continueButton}
-        underlayColor="#65CAED"
-        onPress={() => this.onPressAuthenticate()}>
-        <Text style={styles.continueButtonText}>Sign In</Text>
-      </TouchableHighlight>
+      <FLButton onPress={() => this.onPressAuthenticate()}>
+      Sign In
+      </FLButton>
+
       </View>
       </KeyboardAvoidingView>
       </View>
@@ -171,12 +148,9 @@ class ConfirmCode extends React.Component {
                    onSubmitEditing={() => this.onPressAuthenticate()}
       />
 
-      <TouchableHighlight
-        style={styles.continueButton}
-        underlayColor="#65CAED"
-        onPress={() => this.onPressAuthenticate()}>
-        <Text style={styles.continueButtonText}>Submit Code</Text>
-      </TouchableHighlight>
+      <FLButton onPress={() => this.onPressAuthenticate()}>
+      Submit Code
+      </FLButton>
       </View>
       </KeyboardAvoidingView>
       </View>

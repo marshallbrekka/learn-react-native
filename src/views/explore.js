@@ -21,10 +21,13 @@ import {
 
 const AGE_REF = 'ageInput';
 
+import {
+  FLColors,
+  FLStyles
+} from "../components/styles.js"
+
 
 const styles = StyleSheet.create({
-  scroll: {
-  },
   container: {
     resizeMode: "contain",
     flex: 1,
