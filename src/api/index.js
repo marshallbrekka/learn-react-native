@@ -20,7 +20,7 @@ export class API {
       Accept: 'application/json'
     }
     if (this.authToken) {
-      headers['Authorization'] = this.authToken
+      headers['Authorization'] = `Bearer ${this.authToken}`
     }
 
     let options = {

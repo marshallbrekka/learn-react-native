@@ -45,6 +45,20 @@ describe('API', () => {
       })
     })
 
+    it('sets the auth token when present', () => {
+      api = new API('http://base', 'auth-token', (uri, options) => {
+        fetchRequest = {uri: uri, options: options}
+        return new Promise(() => {})
+      })
+
+      api._call('GET', 'foo')
+      expect(fetchRequest.options).toMatchObject({
+        headers: {
+          Authorization: 'Bearer auth-token'
+        },
+      })
+    })
+
     it('sets the Content-Type header with a body', () => {
       api._call('POST', 'foo', {foo: 'bar'})
 
