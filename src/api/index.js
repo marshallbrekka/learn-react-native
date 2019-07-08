@@ -1,6 +1,8 @@
 import * as errors from "./errors"
 
 export class API {
+  authToken = null
+
   constructor(baseUrl, authToken, fetchImpl = fetch) {
     this.baseUrl = baseUrl
     this.authToken = authToken
